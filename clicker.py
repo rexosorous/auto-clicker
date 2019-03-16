@@ -188,10 +188,10 @@ while True:
                 del mousepos[int(inpsplit[1])]
         elif inpsplit[0] == 'save':
             if inp[1]:
-                file_name = 'saves/' + inpsplit[1]
+                file_name = 'saves/' + inpsplit[1] + '.json'
             save()
         elif inpsplit[1] == 'load':
-            file_name = 'saves/' + inpsplit[1]
+            file_name = 'saves/' + inpsplit[1] + '.json'
             load()
         elif inp in ['resetfile', 'clearfile']:
             file_name = ''
