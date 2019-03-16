@@ -29,6 +29,7 @@ def stop(key):
     global on
     if key == pynput.keyboard.KeyCode(220):
         on = True if not on else False
+        output()
     if key == pynput.keyboard.Key.delete:
         os._exit(1)
 
@@ -131,7 +132,13 @@ def output():
     print(f'click spots:  {mousepos}') if mousepos else print('click spots:  none')
     print('\n\n')
 
+
     print('CONTROLS')
+    print('backslash   starts and stops clicker')
+    print('delete      exits program')
+    print('\n\n')
+
+    print('COMMANDS')
     print('left                  change mouse button to left')
     print('right                 change mousee button to right')
     print('delay [number]        sets delay between clicks in seconds')
@@ -153,6 +160,7 @@ def output():
 
 
 
+output()
 
 # INPUTS
 while True:
@@ -180,10 +188,10 @@ while True:
                 del mousepos[int(inp[1])]
         elif inp[0] == 'save':
             if inp[1]:
-                file_name = inp[1]
+                file_name = 'saves\\' + inp[1]
             save()
         elif inp[1] == 'load':
-            file_name = inp[1]
+            file_name = 'saves\\' + inp[1]
             load()
         elif inp in ['resetfile', 'clearfile']:
             file_name = ''
