@@ -52,7 +52,6 @@ stop_thread.start()
 
 # CLICK THREAD
 def click():
-    global mousepos
     while True:
         while on:
             if mousepos:
@@ -81,7 +80,6 @@ click_thread.start()
 
 # MOUSE POSITION THREAD
 def getpos(x, y, button, pressed):
-    global mousepos
     if button == pynput.mouse.Button.middle and pressed:
         mousepos.append(mouse.position)
         output()
@@ -100,7 +98,6 @@ def pos_listen():
 
 
 def save():
-    global file_name
     save_dict = {'mouse_button': 'left' if mouse_button == pynput.mouse.Button.left else 'right',
                 'delay': delay,
                 'mousepos': mousepos}
@@ -110,10 +107,12 @@ def save():
 
 
 def load():
-    global file_name
+    global mouse_button
+    global delay
+    global mousepos
     with open(file_name, 'r') as file:
         load_dict = json.load(file)
-    mouse_button = pynput.mouse.Button.left if load_dict['mouse_button'] == left else pynput.mouse.Button.right
+    mouse_button = pynput.mouse.Button.left if load_dict['mouse_button'] == 'left' else pynput.mouse.Button.right
     delay = load_dict['delay']
     mousepos = load_dict['mousepos']
 
@@ -199,7 +198,7 @@ while True:
 
         # save/load
         elif inpsplit[0] == 'save':
-            if inp[1]:
+            if len(inpsplit) == 2:
                 file_name = 'saves/' + inpsplit[1] + '.json'
             save()
 
