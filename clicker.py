@@ -181,17 +181,17 @@ while True:
             pos_thread.start()
         elif inp in ['resetpos', 'clearpos', 'resetspot', 'clearspot']:
             mousepos = []
-        elif inp[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
-            if inp[1] in ['last', 'end']:
+        elif inpsplit[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
+            if inpsplit[1] in ['last', 'end']:
                 del mousepos[-1]
             else:
-                del mousepos[int(inp[1])]
-        elif inp[0] == 'save':
+                del mousepos[int(inpsplit[1])]
+        elif inpsplit[0] == 'save':
             if inp[1]:
-                file_name = 'saves\\' + inp[1]
+                file_name = 'saves/' + inpsplit[1]
             save()
-        elif inp[1] == 'load':
-            file_name = 'saves\\' + inp[1]
+        elif inpsplit[1] == 'load':
+            file_name = 'saves/' + inpsplit[1]
             load()
         elif inp in ['resetfile', 'clearfile']:
             file_name = ''
