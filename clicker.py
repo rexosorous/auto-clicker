@@ -168,31 +168,44 @@ while True:
     inpsplit = inp.split()
 
     try:
+        #basic
         if inp == 'left':
             mouse_button = pynput.mouse.Button.left
+
         elif inp == 'right':
             mouse_button = pynput.mouse.Button.right
+
         elif inpsplit[0] in ['delay', 'space', 'spacing', 'time']:
             delay = int(inpsplit[1])
+
+
+        # mouse positions
         elif inp == 'add':
             print('press middle mouse button to get mouse position')
             pos_thread = threading.Thread(target=pos_listen)
             pos_thread.daemon = True
             pos_thread.start()
-        elif inp in ['resetpos', 'clearpos', 'resetspot', 'clearspot']:
-            mousepos = []
+
         elif inpsplit[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
             if inpsplit[1] in ['last', 'end']:
                 del mousepos[-1]
             else:
                 del mousepos[int(inpsplit[1])]
+
+        elif inp in ['resetpos', 'clearpos', 'resetspot', 'clearspot']:
+            mousepos = []
+
+
+        # save/load
         elif inpsplit[0] == 'save':
             if inp[1]:
                 file_name = 'saves/' + inpsplit[1] + '.json'
             save()
-        elif inpsplit[1] == 'load':
+
+        elif inpsplit[0] == 'load':
             file_name = 'saves/' + inpsplit[1] + '.json'
             load()
+
         elif inp in ['resetfile', 'clearfile']:
             file_name = ''
 
