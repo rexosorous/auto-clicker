@@ -177,7 +177,7 @@ while True:
             mouse_button = pynput.mouse.Button.right
 
         elif inpsplit[0] in ['delay', 'space', 'spacing', 'time']:
-            delay = int(inpsplit[1])
+            delay = float(inpsplit[1])
 
 
         # mouse positions
