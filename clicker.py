@@ -57,9 +57,9 @@ def click():
             if mousepos:
                 for pos in mousepos:
                     mouse.move(pos[0] - mouse.position[0], pos[1] - mouse.position[1])
-                    sleep(0.1)
+                    # sleep(0.1)
                     mouse.press(mouse_button)
-                    sleep(0.1)
+                    # sleep(0.1)
                     mouse.release(mouse_button)
                     sleep(delay)
             else:

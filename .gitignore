@@ -2,4 +2,6 @@ __pycache__
 build
 dist
 mouse.ico
+mouse.png
 clicker.spec
+build.bat
