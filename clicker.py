@@ -1,50 +1,17 @@
-import pynput
+import keyboard
+import pyautogui
 import threading
 import os
 import json
 from time import sleep
 
 on = False
-mouse = pynput.mouse.Controller()
 file_name = ''
 
 
 mousepos = []
-mouse_button = pynput.mouse.Button.left
+mouse_button = 'left'
 delay = 0.005 # IN SECONDS
-
-
-
-
-
-class exit(Exception):
-    pass
-
-
-
-
-
-# STOP THREAD
-def stop(key):
-    global on
-    if key == pynput.keyboard.KeyCode(220):
-        on = True if not on else False
-        output()
-    if key == pynput.keyboard.Key.delete:
-        os._exit(1)
-
-
-
-def listen():
-    with pynput.keyboard.Listener(on_press=stop) as listener:
-        listener.join()
-
-
-stop_thread = threading.Thread(target=listen)
-stop_thread.daemon = True
-stop_thread.start()
-
-
 
 
 
@@ -56,15 +23,11 @@ def click():
         while on:
             if mousepos:
                 for pos in mousepos:
-                    mouse.move(pos[0] - mouse.position[0], pos[1] - mouse.position[1])
-                    # sleep(0.1)
-                    mouse.press(mouse_button)
-                    # sleep(0.1)
-                    mouse.release(mouse_button)
+                    pyautogui.moveTo(pos[0], pos[1])
+                    pyautogui.click(button=mouse_button)
                     sleep(delay)
             else:
-                mouse.press(mouse_button)
-                mouse.release(mouse_button)
+                pyautogui.click(button=mouse_button)
                 sleep(delay)
 
 
@@ -76,27 +39,28 @@ click_thread.start()
 
 
 
+# TOGGLES CLICKER ON AND OFF
+def toggle():
+    global on
+    on = not on
+    output()
 
 
-# MOUSE POSITION THREAD
+
+
+
+
+
+# MOUSE POSITION
 def getpos(x, y, button, pressed):
-    if button == pynput.mouse.Button.middle and pressed:
-        mousepos.append(mouse.position)
-        output()
-        raise exit
-
-
-def pos_listen():
-    try:
-        with pynput.mouse.Listener(on_click=getpos) as listener:
-            listener.join()
-    except exit:
-        pass
+    mousepos.append(mouse.position())
+    output()
 
 
 
 
 
+# SAVE TO JSON FILE
 def save():
     save_dict = {'mouse_button': 'left' if mouse_button == pynput.mouse.Button.left else 'right',
                 'delay': delay,
@@ -105,29 +69,41 @@ def save():
         json.dump(save_dict, file)
 
 
-
+# LOAD FROM JSON FILE
 def load():
     global mouse_button
     global delay
     global mousepos
     with open(file_name, 'r') as file:
         load_dict = json.load(file)
-    mouse_button = pynput.mouse.Button.left if load_dict['mouse_button'] == 'left' else pynput.mouse.Button.right
+    mouse_button = load_dict['mouse_button']
     delay = load_dict['delay']
     mousepos = load_dict['mousepos']
 
 
 
 
+# LISTENER THREAD LISTENS TO KEYBOARD EVENTS
+def listener():
+    keyboard.add_hotkey('shift+1', getpos)
+    keyboard.add_hotkey('\\', toggle)
+    keyboard.add_hotkey('delete', os._exit, args=[1])
+    keyboard.wait()
+
+listener_thread = threading.Thread(target=listener)
+listener_thread.daemon = True
+listener_thread.start()
 
 
 
+
+# PRINTS MAIN MESSAGE
 def output():
     os.system('cls')
     print('MOUSE CLICKER INFO')
     print(f'file                   {file_name}') if file_name else print('file                   none')
     print('status                 on') if on else print('status                 off')
-    print('mouse button           left') if mouse_button == pynput.mouse.Button.left else print('mouse button           right')
+    print(f'mouse button           {mouse_button}')
     print(f'delay                  {delay} seconds')
     print(f'click spots            {mousepos}') if mousepos else print('click spots            none')
     print('\n\n')
@@ -136,14 +112,13 @@ def output():
     print('CONTROLS')
     print('backslash              starts and stops clicker')
     print('delete                 exits program')
-    print('middle mouse button    adds click spots after entering the command \'add\'')
+    print('shift + 1              adds click spots at current mouse position')
     print('\n\n')
 
     print('COMMANDS')
     print('left                   change mouse button to left')
     print('right                  change mousee button to right')
     print('delay [number]         sets delay between clicks in seconds')
-    print('add                    adds mouse spots to click at')
     print('remove [position]      removes mouse click spots at [position]')
     print('resetpos               resets all mouse click spots')
     print('save                   saves settings to current file')
@@ -163,7 +138,7 @@ def output():
 
 output()
 
-# INPUTS
+# INPUT PARSER / HANDLER
 while True:
     inp = input()
     inpsplit = inp.split()
@@ -171,22 +146,17 @@ while True:
     try:
         #basic
         if inp == 'left':
-            mouse_button = pynput.mouse.Button.left
+            mouse_button = 'left'
 
         elif inp == 'right':
-            mouse_button = pynput.mouse.Button.right
+            mouse_button = 'right'
 
         elif inpsplit[0] in ['delay', 'space', 'spacing', 'time']:
             delay = float(inpsplit[1])
 
 
         # mouse positions
-        elif inp == 'add':
-            pos_thread = threading.Thread(target=pos_listen)
-            pos_thread.daemon = True
-            pos_thread.start()
-
-        elif inpsplit[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
+        if inpsplit[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
             if inpsplit[1] in ['last', 'end']:
                 del mousepos[-1]
             else:
