@@ -31,10 +31,6 @@ def click():
                 sleep(delay)
 
 
-click_thread = threading.Thread(target=click)
-click_thread.daemon = True
-click_thread.start()
-
 
 
 
@@ -52,8 +48,8 @@ def toggle():
 
 
 # MOUSE POSITION
-def getpos(x, y, button, pressed):
-    mousepos.append(mouse.position())
+def getpos():
+    mousepos.append(pyautogui.position())
     output()
 
 
@@ -62,7 +58,7 @@ def getpos(x, y, button, pressed):
 
 # SAVE TO JSON FILE
 def save():
-    save_dict = {'mouse_button': 'left' if mouse_button == pynput.mouse.Button.left else 'right',
+    save_dict = {'mouse_button': mouse_button,
                 'delay': delay,
                 'mousepos': mousepos}
     with open(file_name, 'w') as file:
@@ -81,18 +77,6 @@ def load():
     mousepos = load_dict['mousepos']
 
 
-
-
-# LISTENER THREAD LISTENS TO KEYBOARD EVENTS
-def listener():
-    keyboard.add_hotkey('shift+1', getpos)
-    keyboard.add_hotkey('\\', toggle)
-    keyboard.add_hotkey('delete', os._exit, args=[1])
-    keyboard.wait()
-
-listener_thread = threading.Thread(target=listener)
-listener_thread.daemon = True
-listener_thread.start()
 
 
 
@@ -139,49 +123,73 @@ def output():
 output()
 
 # INPUT PARSER / HANDLER
-while True:
-    inp = input()
-    inpsplit = inp.split()
+def command_handler():
+    global mouse_button
+    global mousepos
+    global file_name
 
-    try:
-        #basic
-        if inp == 'left':
-            mouse_button = 'left'
+    while True:
+        inp = input()
+        inpsplit = inp.split()
 
-        elif inp == 'right':
-            mouse_button = 'right'
+        try:
+            #basic
+            if inp == 'left':
+                mouse_button = 'left'
 
-        elif inpsplit[0] in ['delay', 'space', 'spacing', 'time']:
-            delay = float(inpsplit[1])
+            elif inp == 'right':
+                mouse_button = 'right'
 
-
-        # mouse positions
-        if inpsplit[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
-            if inpsplit[1] in ['last', 'end']:
-                del mousepos[-1]
-            else:
-                del mousepos[int(inpsplit[1])]
-
-        elif inp in ['resetpos', 'clearpos', 'resetspot', 'clearspot']:
-            mousepos = []
+            elif inpsplit[0] in ['delay', 'space', 'spacing', 'time']:
+                global delay
+                delay = float(inpsplit[1])
 
 
-        # save/load
-        elif inpsplit[0] == 'save':
-            if len(inpsplit) == 2:
+            # mouse positions
+            if inpsplit[0] in ['remove', 'delete', 'del', 'rem', 'rm']:
+                if inpsplit[1] in ['last', 'end']:
+                    del mousepos[-1]
+                else:
+                    del mousepos[int(inpsplit[1])]
+
+            elif inp in ['resetpos', 'clearpos', 'resetspot', 'clearspot']:
+                mousepos = []
+
+
+            # save/load
+            elif inpsplit[0] == 'save':
+                if len(inpsplit) == 2:
+                    file_name = 'saves/' + inpsplit[1] + '.json'
+                save()
+
+            elif inpsplit[0] == 'load':
                 file_name = 'saves/' + inpsplit[1] + '.json'
-            save()
+                load()
 
-        elif inpsplit[0] == 'load':
-            file_name = 'saves/' + inpsplit[1] + '.json'
-            load()
+            elif inp in ['resetfile', 'clearfile']:
+                file_name = ''
 
-        elif inp in ['resetfile', 'clearfile']:
-            file_name = ''
+            output()
 
-        output()
+        except ValueError:
+            print('ERROR: non-numerical value entered')
+        except IndexError:
+            print('ERROR: not enough arguments')
 
-    except ValueError:
-        print('ERROR: non-numerical value entered')
-    except IndexError:
-        print('ERROR: not enough arguments')
+
+
+
+
+keyboard.add_hotkey('shift+1', getpos)
+keyboard.add_hotkey('\\', toggle)
+keyboard.add_hotkey('delete', os._exit, args=[1])
+
+click_thread = threading.Thread(target=click)
+click_thread.daemon = True
+click_thread.start()
+
+commands_thread = threading.Thread(target=command_handler)
+commands_thread.daemon = True
+commands_thread.start()
+
+keyboard.wait()
